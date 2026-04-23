@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login - AI Box Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #eef2f7;
+            --card: #ffffff;
+            --border: #dde3ed;
+            --blue: #3b6fd4;
+            --blue-dark: #2d57b0;
+            --blue-dot: #4a90d9;
+            --text: #1a2a3a;
+            --muted: #6b7c93;
+            --label: #8a9bb0;
+            --offline: #e74c3c;
+            --shadow-lg: 0 8px 32px rgba(59, 111, 212, 0.13), 0 2px 8px rgba(0, 0, 0, 0.07);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+        }
+
+        /* Top bar */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 52px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            z-index: 10;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .topbar-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .topbar-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--blue-dot);
+        }
+
+        /* Wrapper */
+        .wrapper {
+            width: 100%;
+            max-width: 420px;
+            padding: 24px 16px;
+            animation: fadeUp 0.4s ease both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Card */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            padding: 36px 28px 32px;
+        }
+
+        /* Title */
+        .page-title {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .page-title h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .page-title h1 .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--blue-dot);
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .page-title p {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        /* Fields */
+        .field {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--label);
+            margin-bottom: 7px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--blue);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(59, 111, 212, 0.1);
+        }
+
+        input::placeholder {
+            color: #b0bac8;
+        }
+
+        /* Button */
+        .btn-row {
+            margin-top: 24px;
+        }
+
+        button#loginBtn {
+            width: 100%;
+            padding: 11px 20px;
+            background: var(--blue);
+            border: none;
+            border-radius: 7px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button#loginBtn:hover {
+            background: var(--blue-dark);
+            box-shadow: 0 4px 12px rgba(59, 111, 212, 0.3);
+        }
+
+        button#loginBtn:active {
+            transform: scale(0.98);
+        }
+
+        button#loginBtn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            display: none;
+            width: 15px;
+            height: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        .password-field {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-field input {
+            padding-right: 48px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 34px;
+            height: 34px;
+            border: none;
+            background: transparent;
+            color: #7b8798;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .password-toggle:hover {
+            background: rgba(59, 111, 212, 0.08);
+            color: var(--blue);
+        }
+
+        .password-toggle svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .show-password-check {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--muted);
+            text-transform: none;
+            letter-spacing: 0;
+            cursor: pointer;
+        }
+
+        .show-password-check input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--blue);
+        }
+
+        button#loginBtn.loading .spinner {
+            display: block;
+        }
+
+        .password-field {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-input {
+            width: 100%;
+            padding-right: 52px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 34px;
+            height: 34px;
+            border: none;
+            background: transparent;
+            color: #7b8798;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease, background 0.2s ease;
+        }
+
+        .password-toggle:hover {
+            background: transparent;
+            /* remove gray box */
+            color: var(--blue);
+        }
+
+        .password-toggle:focus {
+            outline: none;
+        }
+
+        .password-toggle svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Error */
+        #errorMsg {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+            padding: 10px 14px;
+            background: #fdf2f2;
+            border: 1px solid #f5c5c5;
+            border-radius: 7px;
+            font-size: 13px;
+            color: var(--offline);
+        }
+
+        #errorMsg.visible {
+            display: flex;
+        }
+
+        .err-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--offline);
+            flex-shrink: 0;
+        }
+
+        /* Bottom hint */
+        .hint {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 12px;
+            color: var(--label);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="topbar">
+        <div class="topbar-title">
+            <div class="topbar-dot"></div>
+            AI Box Dashboard
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <div class="card">
+            <div class="page-title">
+                <h1><span class="dot"></span>AI Box Dashboard</h1>
+                <p>Sign in to access your dashboard</p>
+            </div>
+
+            <div class="field">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Enter username">
+            </div>
+
+            <div class="field">
+                <label>Password</label>
+
+                <div class="password-field">
+                    <input type="password" id="password" class="password-input" placeholder="Enter password">
+
+                    <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+                        <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+
+                        <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            style="display:none;">
+                            <path d="M2 2l20 20" />
+                            <path d="M10.58 10.58A2 2 0 0 0 12 14a2 2 0 0 0 1.42-.58" />
+                            <path d="M9.88 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.8 21.8 0 0 1-5.08 5.94" />
+                            <path d="M6.1 6.1A21.78 21.78 0 0 0 1 12s4 8 11 8a10.94 10.94 0 0 0 5.02-1.21" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="btn-row">
+                <button id="loginBtn">
+                    <div class="spinner"></div>
+                    <span class="btn-text">Login</span>
+                </button>
+            </div>
+
+            <div id="errorMsg">
+                <div class="err-dot"></div>
+                <span id="errorText"></span>
+            </div>
+        </div>
+
+        <div class="hint">AI Box Management System</div>
+    </div>
+
+    <script>
+        const loginBtn = document.getElementById("loginBtn");
+        const errorMsg = document.getElementById("errorMsg");
+        const errorText = document.getElementById("errorText");
+        const passwordInput = document.getElementById("password");
+
+
+        async function doLogin() {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
+
+            errorMsg.classList.remove("visible");
+            loginBtn.classList.add("loading");
+            loginBtn.querySelector(".btn-text").textContent = "Signing in";
+            loginBtn.disabled = true;
+
+            try {
+                const res = await fetch("/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    errorText.innerText = data.error || "Login failed";
+                    errorMsg.classList.add("visible");
+                    loginBtn.classList.remove("loading");
+                    loginBtn.querySelector(".btn-text").textContent = "Login";
+                    loginBtn.disabled = false;
+                    return;
+                }
+                if (data.user.role === "user") {
+                    window.location.href = "/dashboard-user.html";
+                } else if (data.user.role === "admin" || data.user.role === "super-admin") {
+                    window.location.href = "/dashboard-admin.html";
+                } else {
+                    window.location.href = "/login.html";
+                }
+
+            } catch (err) {
+                errorText.innerText = "Network error. Please try again.";
+                errorMsg.classList.add("visible");
+                loginBtn.classList.remove("loading");
+                loginBtn.querySelector(".btn-text").textContent = "Login";
+                loginBtn.disabled = false;
+            }
+        }
+        document.querySelectorAll(".password-field").forEach(field => {
+            const input = field.querySelector(".password-input");
+            const toggle = field.querySelector(".password-toggle");
+            const eyeOpen = field.querySelector(".eye-open");
+            const eyeOff = field.querySelector(".eye-off");
+
+            if (!input || !toggle || !eyeOpen || !eyeOff) return;
+
+            toggle.addEventListener("click", () => {
+                const show = input.type === "password";
+                input.type = show ? "text" : "password";
+                eyeOpen.style.display = show ? "none" : "block";
+                eyeOff.style.display = show ? "block" : "none";
+            });
+        });
+
+        loginBtn.addEventListener("click", doLogin);
+        document.addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
+    </script>
+</body>
+
+</html>
